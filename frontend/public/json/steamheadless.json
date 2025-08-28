@@ -1,0 +1,42 @@
+{
+    "name": "Steam Headless",
+    "slug": "steamheadless",
+    "categories": [
+        24
+    ],
+    "date_created": "2025-08-28",
+    "type": "ct",
+    "updateable": true,
+    "privileged": true,
+    "interface_port": 8083,
+    "documentation": "https://github.com/Steam-Headless/docker-steam-headless",
+    "website": "https://github.com/Steam-Headless/docker-steam-headless",
+    "logo": "https://raw.githubusercontent.com/Steam-Headless/docker-steam-headless/master/images/banner.jpg",
+    "description": "A Headless Steam Docker image supporting NVIDIA GPU and accessible via Web UI. Remote Game Streaming Server for playing games in browser with audio or via Steam Link/Moonlight.",
+    "install_methods": [
+        {
+            "type": "default",
+            "script": "ct/steamheadless.sh",
+            "resources": {
+                "cpu": 4,
+                "ram": 4096,
+                "hdd": 20,
+                "os": "debian",
+                "version": "12"
+            }
+        }
+    ],
+    "default_credentials": {
+        "username": null,
+        "password": "password"
+    },
+    "notes": [
+        "Requires privileged container for device access",
+        "GPU acceleration supported for NVIDIA, AMD, and Intel",
+        "Configure Steam library path to /mnt/games for persistent storage",
+        "Access via web browser at http://[container-ip]:8083",
+        "Default user password is 'password' - change after first login",
+        "Supports controller input and game streaming",
+        "For optimal performance, ensure adequate CPU and RAM resources"
+    ]
+}
