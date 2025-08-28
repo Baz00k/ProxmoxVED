@@ -48,14 +48,6 @@ else
 fi
 msg_ok "Tuned vm.max_map_count"
 
-msg_info "Creating Container Init Overrides"
-cat <<'EOF' >/opt/container-data/steam-headless/overrides/11-setup_sysctl_values.sh
-#!/usr/bin/env bash
-# No-op to avoid vm.max_map_count write inside container
-exit 0
-EOF
-chmod +x /opt/container-data/steam-headless/overrides/11-setup_sysctl_values.sh
-msg_ok "Created Container Init Overrides"
 
 msg_info "Creating Docker Compose Configuration"
 cat <<'EOF' >/opt/steam-headless/docker-compose.yml
@@ -82,6 +74,7 @@ services:
       - apparmor:unconfined
     network_mode: host
     hostname: SteamHeadless
+    entrypoint: ["/bin/sh","-lc","chmod -x /etc/cont-init.d/11-setup_sysctl_values.sh 2>/dev/null || mv /etc/cont-init.d/11-setup_sysctl_values.sh /etc/cont-init.d/11-setup_sysctl_values.sh.disabled 2>/dev/null || true; exec /init"]
     extra_hosts:
       - "SteamHeadless:127.0.0.1"
     environment:
@@ -126,14 +119,13 @@ services:
       - /mnt/games:/mnt/games:rw
       - /opt/container-data/steam-headless/sockets/.X11-unix:/tmp/.X11-unix:rw
       - /opt/container-data/steam-headless/sockets/pulse:/tmp/pulse:rw
-      - /opt/container-data/steam-headless/overrides/11-setup_sysctl_values.sh:/etc/cont-init.d/11-setup_sysctl_values.sh:ro
 EOF
 msg_ok "Created Docker Compose Configuration"
 
 msg_info "Starting Steam Headless Service"
 cd /opt/steam-headless
 $STD docker compose pull
-$STD docker compose up -d
+$STD docker compose up -d --force-recreate
 msg_ok "Started Steam Headless Service"
 
 msg_info "Creating System Service"
