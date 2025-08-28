@@ -31,25 +31,31 @@ msg_ok "Installed Docker"
 msg_info "Creating Steam Headless Directory Structure"
 mkdir -p /opt/steam-headless
 mkdir -p /opt/container-data/steam-headless/{home,sockets/{.X11-unix,pulse}}
+mkdir -p /opt/container-data/steam-headless/overrides
 mkdir -p /mnt/games
 chmod -R 755 /opt/container-data/steam-headless
 chmod -R 777 /mnt/games
-
-# Create init override directory to disable the problematic sysctl script
-mkdir -p /opt/container-data/steam-headless/cont-init.d
-cat <<'EOF' >/opt/container-data/steam-headless/cont-init.d/11-setup_sysctl_values.sh
-#!/bin/bash
-# Dummy sysctl script - does nothing to avoid permission issues
-print_header() { echo "**** $1 ****"; }
-print_step_header() { echo "  - $1"; }
-print_warning() { echo "  WARNING: $1"; }
-
-print_header "Configure some system kernel parameters"
-print_step_header "Skipping sysctl configuration (vm.max_map_count already configured at host level)"
-echo -e "\e[34mDONE\e[0m"
-EOF
-chmod +x /opt/container-data/steam-headless/cont-init.d/11-setup_sysctl_values.sh
 msg_ok "Created Directory Structure"
+
+msg_info "Tuning vm.max_map_count (LXC)"
+current=$(cat /proc/sys/vm/max_map_count 2>/dev/null || echo 0)
+target=524288
+if [ "${current:-0}" -lt "${target}" ]; then
+  echo "vm.max_map_count=${target}" >/etc/sysctl.d/60-steamheadless.conf
+  sysctl -w vm.max_map_count="${target}" >/dev/null 2>&1 || true
+else
+  echo "vm.max_map_count=${current}" >/etc/sysctl.d/60-steamheadless.conf
+fi
+msg_ok "Tuned vm.max_map_count"
+
+msg_info "Creating Container Init Overrides"
+cat <<'EOF' >/opt/container-data/steam-headless/overrides/11-setup_sysctl_values.sh
+#!/usr/bin/env bash
+# No-op to avoid vm.max_map_count write inside container
+exit 0
+EOF
+chmod +x /opt/container-data/steam-headless/overrides/11-setup_sysctl_values.sh
+msg_ok "Created Container Init Overrides"
 
 msg_info "Creating Docker Compose Configuration"
 cat <<'EOF' >/opt/steam-headless/docker-compose.yml
@@ -120,8 +126,7 @@ services:
       - /mnt/games:/mnt/games:rw
       - /opt/container-data/steam-headless/sockets/.X11-unix:/tmp/.X11-unix:rw
       - /opt/container-data/steam-headless/sockets/pulse:/tmp/pulse:rw
-      # Disable the problematic sysctl init script by mounting dummy script over it
-      - /opt/container-data/steam-headless/cont-init.d/11-setup_sysctl_values.sh:/etc/cont-init.d/11-setup_sysctl_values.sh:rw
+      - /opt/container-data/steam-headless/overrides/11-setup_sysctl_values.sh:/etc/cont-init.d/11-setup_sysctl_values.sh:ro
 EOF
 msg_ok "Created Docker Compose Configuration"
 
