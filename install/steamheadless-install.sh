@@ -34,6 +34,13 @@ mkdir -p /opt/container-data/steam-headless/{home,sockets/{.X11-unix,pulse}}
 mkdir -p /mnt/games
 chmod -R 755 /opt/container-data/steam-headless
 chmod -R 777 /mnt/games
+
+cat <<'EOF' >/opt/container-data/steam-headless/dummy-sysctl.sh
+#!/bin/bash
+# Dummy sysctl script - does nothing to avoid permission issues
+echo "Skipping sysctl configuration (handled at host level)"
+EOF
+chmod +x /opt/container-data/steam-headless/dummy-sysctl.sh
 msg_ok "Created Directory Structure"
 
 msg_info "Creating Docker Compose Configuration"
@@ -105,8 +112,8 @@ services:
       - /mnt/games:/mnt/games:rw
       - /opt/container-data/steam-headless/sockets/.X11-unix:/tmp/.X11-unix:rw
       - /opt/container-data/steam-headless/sockets/pulse:/tmp/pulse:rw
-      # Disable the problematic sysctl init script by mounting empty file over it
-      - /dev/null:/etc/cont-init.d/11-setup_sysctl_values.sh:ro
+      # Disable the problematic sysctl init script by mounting dummy script over it
+      - /opt/container-data/steam-headless/dummy-sysctl.sh:/etc/cont-init.d/11-setup_sysctl_values.sh:ro
 EOF
 msg_ok "Created Docker Compose Configuration"
 
