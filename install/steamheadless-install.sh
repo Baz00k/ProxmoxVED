@@ -155,6 +155,9 @@ msg_info "Creating Credentials File"
 } >> ~/steamheadless.creds
 msg_ok "Created Credentials File"
 
+motd_ssh
+customize
+
 msg_info "Cleaning Up"
 $STD apt-get -y autoremove
 $STD apt-get -y autoclean
