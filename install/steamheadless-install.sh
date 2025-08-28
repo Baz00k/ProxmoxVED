@@ -96,9 +96,6 @@ services:
       - ENABLE_EVDEV_INPUTS=true
       - FORCE_X11_DUMMY_CONFIG=true
 
-      # Skip sysctl configuration (handled at host level)
-      - SKIP_SYSCTL_CONF=true
-
       # Nvidia specific config
       - NVIDIA_DRIVER_CAPABILITIES=all
       - NVIDIA_VISIBLE_DEVICES=all
@@ -108,6 +105,8 @@ services:
       - /mnt/games:/mnt/games:rw
       - /opt/container-data/steam-headless/sockets/.X11-unix:/tmp/.X11-unix:rw
       - /opt/container-data/steam-headless/sockets/pulse:/tmp/pulse:rw
+      # Disable the problematic sysctl init script by mounting empty file over it
+      - /dev/null:/etc/cont-init.d/11-setup_sysctl_values.sh:ro
 EOF
 msg_ok "Created Docker Compose Configuration"
 
