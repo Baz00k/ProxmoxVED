@@ -35,12 +35,20 @@ mkdir -p /mnt/games
 chmod -R 755 /opt/container-data/steam-headless
 chmod -R 777 /mnt/games
 
-cat <<'EOF' >/opt/container-data/steam-headless/dummy-sysctl.sh
+# Create init override directory to disable the problematic sysctl script
+mkdir -p /opt/container-data/steam-headless/cont-init.d
+cat <<'EOF' >/opt/container-data/steam-headless/cont-init.d/11-setup_sysctl_values.sh
 #!/bin/bash
 # Dummy sysctl script - does nothing to avoid permission issues
-echo "Skipping sysctl configuration (handled at host level)"
+print_header() { echo "**** $1 ****"; }
+print_step_header() { echo "  - $1"; }
+print_warning() { echo "  WARNING: $1"; }
+
+print_header "Configure some system kernel parameters"
+print_step_header "Skipping sysctl configuration (vm.max_map_count already configured at host level)"
+echo -e "\e[34mDONE\e[0m"
 EOF
-chmod +x /opt/container-data/steam-headless/dummy-sysctl.sh
+chmod +x /opt/container-data/steam-headless/cont-init.d/11-setup_sysctl_values.sh
 msg_ok "Created Directory Structure"
 
 msg_info "Creating Docker Compose Configuration"
@@ -113,7 +121,7 @@ services:
       - /opt/container-data/steam-headless/sockets/.X11-unix:/tmp/.X11-unix:rw
       - /opt/container-data/steam-headless/sockets/pulse:/tmp/pulse:rw
       # Disable the problematic sysctl init script by mounting dummy script over it
-      - /opt/container-data/steam-headless/dummy-sysctl.sh:/etc/cont-init.d/11-setup_sysctl_values.sh:rw
+      - /opt/container-data/steam-headless/cont-init.d/11-setup_sysctl_values.sh:/etc/cont-init.d/11-setup_sysctl_values.sh:rw
 EOF
 msg_ok "Created Docker Compose Configuration"
 
