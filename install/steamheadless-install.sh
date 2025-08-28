@@ -47,6 +47,7 @@ services:
     restart: unless-stopped
     shm_size: 2G
     ipc: host
+    privileged: true
     ulimits:
       nofile:
         soft: 1024
@@ -64,9 +65,9 @@ services:
       - "SteamHeadless:127.0.0.1"
     environment:
       # System
-      - TZ=UTC
-      - USER_LOCALES=en_US.UTF-8 UTF-8
-      - DISPLAY=:55
+      - TZ=${TZ:-UTC}
+      - USER_LOCALES=${USER_LOCALES:-en_US.UTF-8 UTF-8}
+      - DISPLAY=${DISPLAY:-:55}
 
       # User
       - PUID=1000
@@ -94,11 +95,11 @@ services:
       # Xorg
       - ENABLE_EVDEV_INPUTS=true
       - FORCE_X11_DUMMY_CONFIG=true
-    devices:
-      - /dev/fuse
-      - /dev/uinput
-    device_cgroup_rules:
-      - 'c 13:* rmw'
+
+      # Nvidia specific config
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - NVIDIA_VISIBLE_DEVICES=all
+
     volumes:
       - /opt/container-data/steam-headless/home:/home/default:rw
       - /mnt/games:/mnt/games:rw
