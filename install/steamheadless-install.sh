@@ -113,7 +113,7 @@ services:
       - /opt/container-data/steam-headless/sockets/.X11-unix:/tmp/.X11-unix:rw
       - /opt/container-data/steam-headless/sockets/pulse:/tmp/pulse:rw
       # Disable the problematic sysctl init script by mounting dummy script over it
-      - /opt/container-data/steam-headless/dummy-sysctl.sh:/etc/cont-init.d/11-setup_sysctl_values.sh:ro
+      - /opt/container-data/steam-headless/dummy-sysctl.sh:/etc/cont-init.d/11-setup_sysctl_values.sh:rw
 EOF
 msg_ok "Created Docker Compose Configuration"
 
