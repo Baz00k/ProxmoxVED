@@ -36,6 +36,12 @@ chmod -R 755 /opt/container-data/steam-headless
 chmod -R 777 /mnt/games
 msg_ok "Created Directory Structure"
 
+msg_info "Configuring System Parameters for Gaming Performance"
+# Set vm.max_map_count for better gaming performance (required by Steam)
+echo 'vm.max_map_count=524288' >> /etc/sysctl.conf
+sysctl -p
+msg_ok "Configured System Parameters"
+
 msg_info "Creating Docker Compose Configuration"
 cat <<'EOF' >/opt/steam-headless/docker-compose.yml
 ---
@@ -95,6 +101,9 @@ services:
       # Xorg
       - ENABLE_EVDEV_INPUTS=true
       - FORCE_X11_DUMMY_CONFIG=true
+
+      # Skip sysctl configuration (handled at host level)
+      - SKIP_SYSCTL_CONF=true
 
       # Nvidia specific config
       - NVIDIA_DRIVER_CAPABILITIES=all
