@@ -74,7 +74,7 @@ services:
       - apparmor:unconfined
     network_mode: host
     hostname: SteamHeadless
-    entrypoint: ["/bin/sh","-lc","chmod -x /etc/cont-init.d/11-setup_sysctl_values.sh 2>/dev/null || mv /etc/cont-init.d/11-setup_sysctl_values.sh /etc/cont-init.d/11-setup_sysctl_values.sh.disabled 2>/dev/null || true; exec /init"]
+    entrypoint: ["/bin/bash","-c","if [ -f /etc/cont-init.d/11-setup_sysctl_values.sh ]; then mv /etc/cont-init.d/11-setup_sysctl_values.sh /etc/cont-init.d/11-setup_sysctl_values.sh.disabled 2>/dev/null || true; fi; exec /entrypoint.sh"]
     extra_hosts:
       - "SteamHeadless:127.0.0.1"
     environment:
