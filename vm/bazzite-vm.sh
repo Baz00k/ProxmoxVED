@@ -489,9 +489,10 @@ msg_info "Creating a Bazzite VM"
 qm create $VMID -agent 1${MACHINE} -tablet 0 -localtime 1 -bios ovmf${CPU_TYPE} -cores $CORE_COUNT -memory $RAM_SIZE \
   -name $HN -tags community-script -net0 virtio,bridge=$BRG,macaddr=$MAC$VLAN$MTU -onboot 1 -ostype l26 -scsihw virtio-scsi-pci >/dev/null
 pvesm alloc $STORAGE $VMID $DISK0 4M >/dev/null
+pvesm alloc $STORAGE $VMID $DISK1 $DISK_SIZE >/dev/null
 qm set $VMID \
   -efidisk0 ${DISK0_REF}${FORMAT} \
-  -scsi0 ${STORAGE}:${DISK_SIZE},${DISK_CACHE}${THIN} \
+  -scsi0 ${DISK1_REF},${DISK_CACHE}${THIN} \
   -ide2 none,media=cdrom \
   -boot order=ide2 \
   -serial0 socket >/dev/null
