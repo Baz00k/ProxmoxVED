@@ -6,7 +6,6 @@
 
 source /dev/stdin <<<$(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVED/main/misc/api.func)
 source <(curl -fsSL https://git.community-scripts.org/community-scripts/ProxmoxVED/raw/branch/main/misc/vm-core.func)
-load_functions
 
 APP="Bazzite VM"
 header_info
@@ -56,6 +55,7 @@ trap 'error_handler $LINENO "$BASH_COMMAND"' ERR
 trap cleanup EXIT
 trap 'post_update_to_api "failed" "INTERRUPTED"' SIGINT
 trap 'post_update_to_api "failed" "TERMINATED"' SIGTERM
+
 function error_handler() {
   local exit_code="$?"
   local line_number="$1"
@@ -129,6 +129,15 @@ function check_root() {
   fi
 }
 
+function pve_check() {
+  if ! pveversion | grep -Eq "pve-manager/[8-9]\.[0-9]+(\.[0-9]+)*"; then
+    msg_error "${CROSS}${RD}This version of Proxmox Virtual Environment is not supported"
+    echo -e "Requires Proxmox Virtual Environment Version 8.0 or later."
+    echo -e "Exiting..."
+    sleep 2
+    exit
+  fi
+}
 
 function arch_check() {
   if [ "$(dpkg --print-architecture)" != "amd64" ]; then
@@ -396,15 +405,6 @@ function start_script() {
     header_info
     echo -e "${ADVANCED}${BOLD}${RD}Using Advanced Settings${CL}"
     advanced_settings
-  fi
-}
-function pve_check() {
-  if ! pveversion | grep -Eq "pve-manager/[8-9]\.[0-9]+(\.[0-9]+)*"; then
-    msg_error "${CROSS}${RD}This version of Proxmox Virtual Environment is not supported"
-    echo -e "Requires Proxmox Virtual Environment Version 8.0 or later."
-    echo -e "Exiting..."
-    sleep 2
-    exit
   fi
 }
 
