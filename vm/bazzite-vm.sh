@@ -479,7 +479,7 @@ pvesm alloc $STORAGE $VMID $DISK0 4M >/dev/null
 qm set $VMID \
   -efidisk0 ${DISK0_REF}${FORMAT} \
   -scsi0 ${STORAGE}:${DISK_SIZE},${DISK_CACHE}${THIN} \
-  -ide2 media=cdrom \
+  -ide2 none,media=cdrom \
   -boot order=ide2 \
   -serial0 socket >/dev/null
 qm set $VMID --agent enabled=1 >/dev/null
