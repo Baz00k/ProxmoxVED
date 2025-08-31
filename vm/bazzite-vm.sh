@@ -84,9 +84,22 @@ function get_valid_nextid() {
 }
 
 function cleanup_vmid() {
+  if [[ -z "${VMID:-}" ]]; then
+    return
+  fi
+
+  # Stop and destroy VM if it exists
   if qm status $VMID &>/dev/null; then
-    qm stop $VMID &>/dev/null
-    qm destroy $VMID &>/dev/null
+    qm stop $VMID &>/dev/null || true
+    qm destroy $VMID &>/dev/null || true
+  fi
+
+  # Clean up any orphaned disks
+  if [[ -n "${STORAGE:-}" ]] && [[ -n "${DISK0:-}" ]]; then
+    pvesm free "${STORAGE}:${DISK0}" &>/dev/null || true
+  fi
+  if [[ -n "${STORAGE:-}" ]] && [[ -n "${DISK1:-}" ]]; then
+    pvesm free "${STORAGE}:${DISK1}" &>/dev/null || true
   fi
 }
 
