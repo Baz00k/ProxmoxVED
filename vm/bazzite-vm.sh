@@ -183,8 +183,8 @@ function exit_script() {
 
 function default_settings() {
   VMID=$(get_valid_nextid)
-  FORMAT=",efitype=4m"
-  MACHINE=""
+  FORMAT=""
+  MACHINE=" -machine q35"
   DISK_CACHE=""
   DISK_SIZE="32G"
   HN="bazzite"
@@ -199,7 +199,7 @@ function default_settings() {
   METHOD="default"
   BAZZITE_FLAVOR="desktop-kde-nvidia"
   echo -e "${CONTAINERID}${BOLD}${DGN}Virtual Machine ID: ${BGN}${VMID}${CL}"
-  echo -e "${CONTAINERTYPE}${BOLD}${DGN}Machine Type: ${BGN}i440fx${CL}"
+  echo -e "${CONTAINERTYPE}${BOLD}${DGN}Machine Type: ${BGN}q35${CL}"
   echo -e "${DISKSIZE}${BOLD}${DGN}Disk Size: ${BGN}${DISK_SIZE}${CL}"
   echo -e "${DISKSIZE}${BOLD}${DGN}Disk Cache: ${BGN}None${CL}"
   echo -e "${HOSTNAME}${BOLD}${DGN}Hostname: ${BGN}${HN}${CL}"
@@ -248,8 +248,8 @@ function advanced_settings() {
   fi
 
   if MACH=$(whiptail --backtitle "Proxmox VE Helper Scripts" --title "MACHINE TYPE" --radiolist --cancel-button Exit-Script "Choose Type" 10 58 2 \
-    "i440fx" "Machine i440fx" ON \
-    "q35" "Machine q35" OFF \
+    "q35" "Machine q35" ON \
+    "i440fx" "Machine i440fx" OFF \
     3>&1 1>&2 2>&3); then
     if [ $MACH = q35 ]; then
       echo -e "${CONTAINERTYPE}${BOLD}${DGN}Machine Type: ${BGN}$MACH${CL}"
